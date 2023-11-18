@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Mahabharat Quiz</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      background-color: #333;
+      color: white;
+      padding: 1em;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="radio"] {
+      margin-right: 5px;
+    }
+
+    button {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #timer {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    /* Add more styling as needed */
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Interactive Mahabharat Quiz</h1>
+  </header>
+
+  <main>
+    <!-- Quiz Content -->
+    <h2>Quiz Questions</h2>
+    <form id="quizForm">
+      <!-- Questions and answer choices dynamically added using JavaScript -->
+    </form>
+
+    <div id="timer">Time remaining: 6 seconds</div>
+    <button type="button" onclick="submitQuiz()">Submit</button>
+
+    <div id="result"></div>
+    <img id="questionImage" src="" alt="Mahabharat Image">
+  </main>
+
+  <script>
+    // JavaScript code for quiz functionality
+    // Use a JavaScript object or array to store questions and correct answers
+    const quizData = [
+      {
+        question: "Who is the father of Arjuna?",
+        choices: ["Dronacharya", "Bhishma", "King Pandu"],
+        correctAnswer: "King Pandu",
+        image: "https://example.com/arjuna.jpg"
+      },
+      {
+        question: "What is the name of the weapon Arjuna receives from Lord Shiva?",
+        choices: ["Brahmastra", "Pashupatastra", "Varunastra"],
+        correctAnswer: "Pashupatastra",
+        image: "https://example.com/weapon.jpg"
+      },
+      {
+        question: "Who was the charioteer of Arjuna during the Kurukshetra War?",
+        choices: ["Krishna", "Duryodhana", "Karna"],
+        correctAnswer: "Krishna",
+        image: "https://example.com/charioteer.jpg"
+      },
+      {
+        question: "What is the name of Bhima's mace?",
+        choices: ["Gandiva", "Vajra", "Gada"],
+        correctAnswer: "Gada",
+        image: "https://example.com/mace.jpg"
+      },
+      {
+        question: "Who is the mother of Karna?",
+        choices: ["Kunti", "Gandhari", "Radha"],
+        correctAnswer: "Kunti",
+        image: "https://example.com/karna.jpg"
+      },
+      // Add more questions as needed
+    ];
+
+    // Set the timer duration in seconds
+    const timerDuration = 6;
+    let timer = timerDuration;
+    let currentQuestionIndex = 0;
+
+    function populateQuiz() {
+      const form = document.getElementById("quizForm");
+
+      quizData.forEach((questionData, index) => {
+        const questionContainer = document.createElement("div");
+        questionContainer.classList.add("question-container");
+
+        const question = document.createElement("label");
+        question.textContent = `Q${index + 1}: ${questionData.question}`;
+        questionContainer.appendChild(question);
+
+        const questionImage = document.getElementById("questionImage");
+        questionImage.src = questionData.image;
+
+        questionData.choices.forEach((choice, choiceIndex) => {
+          const radioInput = document.createElement("input");
+          radioInput.type = "radio";
+          radioInput.name = `q${index}`;
+          radioInput.value = choice;
+          radioInput.id = `q${index}choice${choiceIndex}`;
+
+          const choiceLabel = document.createElement("label");
+          choiceLabel.textContent = choice;
+          choiceLabel.htmlFor = `q${index}choice${choiceIndex}`;
+
+          questionContainer.appendChild(radioInput);
+          questionContainer.appendChild(choiceLabel);
+        });
+
+        form.appendChild(questionContainer);
+      });
+    }
+
+    function calculateScore() {
+      const form = document.getElementById("quizForm");
+      let score = 0;
+
+      quizData.forEach((questionData, index) => {
+        const selectedAnswer = form.querySelector(`input[name="q${index}"]:checked`);
+
+        if (selectedAnswer) {
+          if (selectedAnswer.value === questionData.correctAnswer) {
+            score++;
+          }
+        }
+      });
+
+      return score;
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval); // Stop the timer when submitting
+      const score = calculateScore();
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = `You scored ${score} out of ${quizData.length} questions correctly.`;
+    }
+
+    function updateTimer() {
+      const timerDiv = document.getElementById("timer");
+      timerDiv.textContent = `Time remaining: ${timer} seconds`;
+      timer--;
+
+      if (timer < 0) {
+        timer = timerDuration;
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+          loadQuestion();
+        } else {
+          clearInterval(timerInterval);
+          submitQuiz();
+        }
+      }
+    }
+
+    function loadQuestion() {
+      const form = document.getElementById("quizForm");
+      form.innerHTML = ""; // Clear previous question and choices
+
+      const questionData = quizData[currentQuestionIndex];
+
+      const questionContainer = document.createElement("div");
+      questionContainer.classList.add("question-container");
+
+      const question = document.createElement("label");
+      question.textContent = `Q${currentQuestionIndex + 1}: ${questionData.question}`;
+      questionContainer.appendChild(question);
+
+      const questionImage = document.getElementById("questionImage");
+      questionImage.src = questionData.image;
+
+      questionData.choices.forEach((choice, choiceIndex) => {
+        const radioInput = document.createElement("input");
+        radioInput.type = "radio";
+        radioInput.name = `q${currentQuestionIndex}`;
+        radioInput.value = choice;
+        radioInput.id = `q${currentQuestionIndex}choice${choiceIndex}`;
+
+        const choiceLabel = document.createElement("label");
+        choiceLabel.textContent = choice;
+        choiceLabel.htmlFor = `q${currentQuestionIndex}choice${choiceIndex}`;
+
+        questionContainer.appendChild(radioInput);
+        questionContainer.appendChild(choiceLabel);
+      });
+
+      form.appendChild(questionContainer);
+
+      // Reset the timer for the next question
+      timer = timerDuration;
+    }
+
+    // Initial quiz population
+    populateQuiz();
+
+    // Start the timer
+    const timerInterval = setInterval(updateTimer, 1000);
+  </script>
+
+</body>
+</html>
